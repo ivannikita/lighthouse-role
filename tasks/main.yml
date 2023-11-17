@@ -1,0 +1,26 @@
+---
+- name: install requirements
+  ansible.builtin.yum:
+    name:
+      - git
+      - nginx
+    state: present
+  tags: lighthouse
+- name: create LightHouse content dir
+  file: 
+   path: /var/lighthouse
+   state: directory
+   mode: 0755
+  tags: lighthouse
+- name: clone LightHouse repo
+  ansible.builtin.git:
+    repo: https://github.com/VKCOM/lighthouse.git
+    dest: "{{ lighthouse_conf_folder }}"
+    version: master    
+  tags: lighthouse
+- name: copy nginx config
+  ansible.builtin.template:
+   src: lighthouse.conf.j2
+   dest:  /etc/nginx/conf.d/lighthouse.conf
+  tags: lighthouse
+  notify: Start nginx service
